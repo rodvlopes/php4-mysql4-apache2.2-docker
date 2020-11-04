@@ -1,5 +1,0 @@
-201104 18:46:56  mysqld started
-nohup: ignoring input
-201104 18:46:56  InnoDB: Started; log sequence number 0 43634
-/usr/local/mysql/libexec/mysqld: ready for connections.
-Version: '4.1.22'  socket: '/tmp/mysql.sock'  port: 3306  Source distribution

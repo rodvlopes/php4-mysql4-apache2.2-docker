@@ -8,11 +8,11 @@ This Dockerfile builds this old stack trying to keep everything as it used to be
 
 ## Build
 
-docker build -t php4 .
+   docker build -t php4 .
 
 ## Run
 
-docker run -d --name php4 -p 80:80 -v `pwd`/data:/usr/local/mysql/var -v `pwd`/app:/usr/local/apache2/htdocs php4
+    docker run -d --name php4 -p 80:80 -v `pwd`/data:/usr/local/mysql/var -v `pwd`/app:/usr/local/apache2/htdocs php4
 
 ### Data Volume (mysql/var)
 
@@ -28,4 +28,4 @@ This git project carry a sample app/data for testing purpose.
 
 ### Final Image Size
 
-266MB
+    266MB

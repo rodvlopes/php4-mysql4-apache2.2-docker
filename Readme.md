@@ -8,7 +8,7 @@ This Dockerfile builds this old stack trying to keep everything as it used to be
 
 ## Build
 
-   docker build -t php4 .
+    docker build -t php4 .
 
 ## Run
 

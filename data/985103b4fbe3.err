@@ -1,0 +1,19 @@
+201104 18:27:19  mysqld started
+nohup: ignoring input
+InnoDB: The first specified data file ./ibdata1 did not exist:
+InnoDB: a new database to be created!
+201104 18:27:19  InnoDB: Setting file ./ibdata1 size to 10 MB
+InnoDB: Database physically writes the file full: wait...
+201104 18:27:19  InnoDB: Log file ./ib_logfile0 did not exist: new to be created
+InnoDB: Setting log file ./ib_logfile0 size to 10 MB
+InnoDB: Database physically writes the file full: wait...
+201104 18:27:19  InnoDB: Log file ./ib_logfile1 did not exist: new to be created
+InnoDB: Setting log file ./ib_logfile1 size to 10 MB
+InnoDB: Database physically writes the file full: wait...
+InnoDB: Doublewrite buffer not found: creating new
+InnoDB: Doublewrite buffer created
+InnoDB: Creating foreign key constraint system tables
+InnoDB: Foreign key constraint system tables created
+201104 18:27:19  InnoDB: Started; log sequence number 0 0
+/usr/local/mysql/libexec/mysqld: ready for connections.
+Version: '4.1.22'  socket: '/tmp/mysql.sock'  port: 3306  Source distribution

@@ -25,3 +25,7 @@ Must be the copy of folder of your php application.
 ### Sample App 
 
 This git project carry a sample app/data for testing purpose.
+
+### Final Image Size
+
+266MB

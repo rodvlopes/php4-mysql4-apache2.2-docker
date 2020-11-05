@@ -29,3 +29,7 @@ This git project carry a sample app/data for testing purpose.
 ### Final Image Size
 
     266MB
+
+### Docker Hub
+
+docker pull rodvlopes/php4:latest

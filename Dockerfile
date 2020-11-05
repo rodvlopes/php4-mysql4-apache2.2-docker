@@ -1,6 +1,7 @@
-FROM ubuntu:14.04 as build
-RUN apt-get update && apt-get install -y --force-yes \
-  build-essential libncurses5-dev zlib1g-dev wget flex
+FROM alpine:3.5 as build
+RUN apk update 
+RUN apk add build-base ncurses-dev zlib-dev wget flex 
+RUN apk add perl
 
 WORKDIR /tmp
 
@@ -25,16 +26,22 @@ RUN echo 'AddType application/x-httpd-php php' >> /usr/local/apache2/conf/httpd.
 
 # Build Mysql 4
 ADD mysql-4.1.22.tar.bz2 .
-RUN cd mysql-4.1.22 \
-  && ./configure --prefix=/usr/local/mysql \
-  && make && make install
+RUN echo '/* Linuxthreads */' >> /usr/include/pthread.h \ 
+  && cd mysql-4.1.22 \
+  && ./configure --prefix=/usr/local/mysql CXXFLAGS="-std=gnu++98" 
+RUN cd mysql-4.1.22 && make && make install
+
+# Linuxtrhead hack explained: https://bugs.mysql.com/bug.php?id=19785
+# gnu++98 (error: narrowing conversion):  https://bugs.mysql.com/bug.php?id=19785
 
 
-FROM ubuntu:14.04
+FROM alpine:3.5
+
+RUN apk add --no-cache libstdc++
 
 # Setup Mysql to Run
 ADD my.cnf /usr/local/mysql/my.cnf
-RUN groupadd -r mysql && useradd -r -g mysql mysql \
+RUN addgroup -S mysql && adduser -S mysql -G mysql \
   && mkdir /usr/local/mysql/var \
   && chown -R root /usr/local/mysql && chown -R mysql /usr/local/mysql/var && chgrp -R mysql /usr/local/mysql
 

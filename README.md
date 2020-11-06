@@ -13,7 +13,7 @@ This Dockerfile builds this old stack trying to keep everything as it used to be
 
 ## Build
 
-    docker build -f Dockerfile.ubuntu -t php4 ./context
+    docker build -f Dockerfile.ubuntu -t php4 .
 
 ## Run
 
@@ -33,8 +33,8 @@ This git repository carry a sample app/data for testing/validate purpose.
 
 ### Docker Hub
 
-* ubuntu based: docker pull rodvlopes/php4:latest
-* alpine based: docker pull rodvlopes/php4a:latest
+* ubuntu based: docker pull rodvlopes/php4:ubuntu
+* alpine based: docker pull rodvlopes/php4:alpine
 
 ### Thoughts about Alpine vs Ubuntu
 

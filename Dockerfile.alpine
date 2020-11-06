@@ -49,4 +49,7 @@ COPY --from=build /usr/local/mysql /usr/local/mysql
 ENV PATH="${PATH}:/usr/local/apache2/bin/:/usr/local/mysql/bin/"
 VOLUME /usr/local/mysql/var /usr/local/apache2/htdocs/
 EXPOSE 80 
-CMD apachectl start && mysqld_safe --defaults-file=/usr/local/mysql/my.cnf 
+CMD apachectl start \
+    && chown daemon -R /usr/local/apache2/htdocs/ \
+    && chown mysql -R /usr/local/mysql/var/ \
+    && mysqld_safe --defaults-file=/usr/local/mysql/my.cnf

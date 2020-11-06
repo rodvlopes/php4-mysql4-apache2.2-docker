@@ -2,14 +2,14 @@ A very popular stack for webapps in the 2000's. Today could it could be a headac
 
 This Dockerfile builds this old stack trying to keep everything as it used to be.
 
-    * PHP 4.4.9
-    * Apache 2.2
-    * MySql 4.1.22
+  * PHP 4.4.9
+  * Apache 2.2
+  * MySql 4.1.22
 
 
-    * based on alpine: `76MB`
-    * **arm64** alpine based: `81MB`
-    * based on ubuntu 14.04: `266MB`
+  * based on alpine: `76MB`
+  * **arm64** alpine based: `81MB`
+  * based on ubuntu 14.04: `266MB`
 
 ## Build
 
@@ -35,6 +35,7 @@ This git repository carry a sample app/data for testing/validate purpose.
 
 * ubuntu based: docker pull rodvlopes/php4:ubuntu
 * alpine based: docker pull rodvlopes/php4:alpine
+* arm64 alpine based: docker pull rodvlopes/php4:arm64
 
 ### Thoughts about Alpine vs Ubuntu
 

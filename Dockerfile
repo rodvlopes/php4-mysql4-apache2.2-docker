@@ -1,7 +1,5 @@
 FROM alpine:3.5 as build
-RUN apk update 
-RUN apk add build-base ncurses-dev zlib-dev wget flex 
-RUN apk add perl
+RUN apk add --no-cache build-base ncurses-dev zlib-dev wget flex perl
 
 WORKDIR /tmp
 
@@ -28,10 +26,10 @@ RUN echo 'AddType application/x-httpd-php php' >> /usr/local/apache2/conf/httpd.
 ADD mysql-4.1.22.tar.bz2 .
 RUN echo '/* Linuxthreads */' >> /usr/include/pthread.h \ 
   && cd mysql-4.1.22 \
-  && ./configure --prefix=/usr/local/mysql CXXFLAGS="-std=gnu++98" 
-RUN cd mysql-4.1.22 && make && make install
+  && ./configure --prefix=/usr/local/mysql CXXFLAGS="-std=gnu++98" \
+  && make && make install
 
-# Linuxtrhead hack explained: https://bugs.mysql.com/bug.php?id=19785
+# Linuxtrheads hack explained: https://bugs.mysql.com/bug.php?id=19785
 # gnu++98 (error: narrowing conversion):  https://bugs.mysql.com/bug.php?id=19785
 
 

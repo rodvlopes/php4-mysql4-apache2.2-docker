@@ -6,6 +6,7 @@ This Dockerfile builds this old stack trying to keep everything as it used to be
   * Apache 2.2
   * MySql 4.1.22
 
+## Base image
 
   * based on alpine: `76MB`
   * **arm64** alpine based: `81MB`

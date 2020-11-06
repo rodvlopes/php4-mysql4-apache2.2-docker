@@ -10,7 +10,7 @@ This is the **alpine** version. For the ubuntu version checkout the master.
 
 ## Build
 
-    docker build -t php4 .
+    docker build -f Dockerfile -t php4 ./context
 
 ## Run
 

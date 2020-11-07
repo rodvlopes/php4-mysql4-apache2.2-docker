@@ -18,7 +18,7 @@ This Dockerfile builds this old stack trying to keep everything as it used to be
 
 ## Run
 
-    docker run -d --name php4 -p 80:80 -v `pwd`/data:/usr/local/mysql/var -v `pwd`/app:/usr/local/apache2/htdocs php4
+    docker run -d --name php4 --restart=always -p 80:80 -v `pwd`/data:/usr/local/mysql/var -v `pwd`/app:/usr/local/apache2/htdocs php4
 
 ### Data Volume (mysql/var)
 

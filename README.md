@@ -42,3 +42,6 @@ This git repository carry a sample app/data for testing/validate purpose.
 
 The only diffrence that I can see is that the build proccess of the alpine version is a little bit hacky.
 
+## Motivation
+
+Run my first ever production webapp written in 2003 on a RockPi4 (Raspbarry 4 alternative) and let it running in production for a few for years :-)

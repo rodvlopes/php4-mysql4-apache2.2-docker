@@ -1,5 +1,5 @@
 FROM arm64v8/alpine as build
-RUN apk add --no-cache build-base ncurses-dev zlib-dev wget flex perl libc6-compat
+RUN apk add --no-cache build-base ncurses-dev zlib-dev wget flex perl libc6-compat imap-dev
 
 WORKDIR /tmp
 
@@ -14,7 +14,7 @@ RUN cd httpd-2.2.34 \
 ADD php-4.4.9.tar.bz2 .
 ADD php.ini /usr/local/apache2/php.ini
 RUN cd php-4.4.9 \
-  && ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql --enable-force-cgi-redirect --disable-cgi --with-zlib \
+  && ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql --enable-force-cgi-redirect --disable-cgi --with-zlib --with-imap \
   --with-config-file-path=/usr/local/apache2 --host=aarch64-unknown-linux-gnu \
   && make && make install
 
@@ -35,7 +35,7 @@ RUN echo '/* Linuxthreads */' >> /usr/include/pthread.h \
 
 FROM arm64v8/alpine
 
-RUN apk add --no-cache libstdc++
+RUN apk add --no-cache libstdc++ imap-dev
 
 # Setup Mysql to Run
 ADD my.cnf /usr/local/mysql/my.cnf

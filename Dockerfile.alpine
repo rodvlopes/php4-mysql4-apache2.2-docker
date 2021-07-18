@@ -1,12 +1,12 @@
 FROM alpine:3.5 as build
-RUN apk add --no-cache build-base ncurses-dev zlib-dev wget flex perl
+RUN apk add --no-cache build-base ncurses-dev zlib-dev wget flex perl imap-dev
 
 WORKDIR /tmp
 
 # Build Apache 2.2
 ADD httpd-2.2.34.tar.bz2 .
 RUN cd httpd-2.2.34 \
-  &&./configure --prefix=/usr/local/apache2 --enable-mods-shared=all --enable-deflate --enable-proxy --enable-proxy-balancer --enable-proxy-http \
+  &&./configure --prefix=/usr/local/apache2 --enable-mods-shared=all --enable-deflate --enable-proxy --enable-proxy-balancer --enable-proxy-http --with-imap \
   && make \
   && make install
 
@@ -35,7 +35,7 @@ RUN echo '/* Linuxthreads */' >> /usr/include/pthread.h \
 
 FROM alpine:3.5
 
-RUN apk add --no-cache libstdc++
+RUN apk add --no-cache libstdc++ imap-dev
 
 # Setup Mysql to Run
 ADD my.cnf /usr/local/mysql/my.cnf

@@ -35,7 +35,7 @@ RUN echo '/* Linuxthreads */' >> /usr/include/pthread.h \
 
 FROM alpine:3.5
 
-RUN apk add --no-cache libstdc++ imap-dev
+RUN apk add --no-cache libstdc++ imap-dev tzdata
 
 # Setup Mysql to Run
 ADD my.cnf /usr/local/mysql/my.cnf

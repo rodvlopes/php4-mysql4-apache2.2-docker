@@ -44,7 +44,7 @@ WORKDIR /tmp
 
 FROM arm64v8/alpine
 
-RUN apk add --no-cache libstdc++ imap-dev
+RUN apk add --no-cache libstdc++ imap-dev tzdata
 
 # Setup Mysql to Run
 ADD my.cnf /usr/local/mysql/my.cnf

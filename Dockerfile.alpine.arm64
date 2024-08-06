@@ -13,10 +13,14 @@ RUN cd httpd-2.2.34 \
 # Build PHP 4
 ADD php-4.4.9.tar.bz2 .
 ADD php.ini /usr/local/apache2/php.ini
-RUN cd php-4.4.9 \
-  && ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql --enable-force-cgi-redirect --disable-cgi --with-zlib --with-imap \
-  --with-config-file-path=/usr/local/apache2 --host=aarch64-unknown-linux-gnu \
-  && make && make install
+
+WORKDIR /tmp/php-4.4.9
+RUN ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql --enable-force-cgi-redirect --disable-cgi --with-zlib --with-imap --with-config-file-path=/usr/local/apache2 --host=aarch64-unknown-linux-gnu
+RUN sed -i "/CFLAGS_CLEAN =/c\CFLAGS_CLEAN = -g -O2 -fcommon" Makefile
+RUN sed -i "/CPP =/c\CPP = gcc -E -fcommon" Makefile
+RUN make && make install
+
+WORKDIR /tmp
 
 # Setup PHP to Run on Apache
 RUN echo 'AddType application/x-httpd-php php' >> /usr/local/apache2/conf/httpd.conf \
@@ -24,10 +28,15 @@ RUN echo 'AddType application/x-httpd-php php' >> /usr/local/apache2/conf/httpd.
 
 # Build Mysql 4
 ADD mysql-4.1.22.tar.bz2 .
-RUN echo '/* Linuxthreads */' >> /usr/include/pthread.h \ 
-  && cd mysql-4.1.22 \
-  && ./configure --prefix=/usr/local/mysql --build=aarch64-unknown-linux-gnu CXXFLAGS="-std=gnu++98" \
-  && make && make install
+
+RUN echo '/* Linuxthreads */' >> /usr/include/pthread.h
+WORKDIR /tmp/mysql-4.1.22
+RUN ./configure --prefix=/usr/local/mysql --build=aarch64-unknown-linux-gnu CXXFLAGS="-std=gnu++98 -fpermissive"
+RUN sed -i "/HAVE_GETHOSTBYADDR_R/d" config.h
+RUN sed -i "/HAVE_GETHOSTBYNAME_R/d" config.h
+RUN make && make install
+
+WORKDIR /tmp
 
 # Linuxtrheads hack explained: https://bugs.mysql.com/bug.php?id=19785
 # gnu++98 (error: narrowing conversion):  https://bugs.mysql.com/bug.php?id=19785

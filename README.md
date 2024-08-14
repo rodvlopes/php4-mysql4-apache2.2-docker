@@ -20,6 +20,10 @@ This Dockerfile builds this old stack trying to keep everything as it used to be
 
     docker run -d --name php4 --restart=always -p 80:80 -v `pwd`/data:/usr/local/mysql/var -v `pwd`/app:/usr/local/apache2/htdocs php4
 
+## Or with docker compose (alpine.arm64)
+
+    docker compose up -d
+
 ### Data Volume (mysql/var)
 
 Must be the copy of the database folder of your old mysql application. All the users, tables, root password, etc. will be the same.

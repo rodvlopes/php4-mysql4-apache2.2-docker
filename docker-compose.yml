@@ -1,0 +1,11 @@
+services:
+  php4:
+    build:
+      context: .
+      dockerfile: Dockerfile.alpine.arm64
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./data:/usr/local/mysql/var
+      - ./app:/usr/local/apache2/htdocs

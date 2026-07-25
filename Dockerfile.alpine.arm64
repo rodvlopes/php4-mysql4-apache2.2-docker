@@ -1,5 +1,5 @@
-FROM arm64v8/alpine as build
-RUN apk add --no-cache build-base ncurses-dev zlib-dev wget flex perl libc6-compat imap-dev
+FROM arm64v8/alpine:3.5 as build
+RUN apk add --no-cache build-base ncurses-dev zlib-dev wget flex perl libc6-compat
 
 WORKDIR /tmp
 
@@ -15,9 +15,13 @@ ADD php-4.4.9.tar.bz2 .
 ADD php.ini /usr/local/apache2/php.ini
 
 WORKDIR /tmp/php-4.4.9
-RUN ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql --enable-force-cgi-redirect --disable-cgi --with-zlib --with-imap --with-config-file-path=/usr/local/apache2 --host=aarch64-unknown-linux-gnu
+RUN ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql --enable-force-cgi-redirect --disable-cgi --with-zlib --with-config-file-path=/usr/local/apache2 --host=aarch64-unknown-linux-gnu
 RUN sed -i "/CFLAGS_CLEAN =/c\CFLAGS_CLEAN = -g -O2 -fcommon" Makefile
 RUN sed -i "/CPP =/c\CPP = gcc -E -fcommon" Makefile
+# libtool's file_magic check is broken on aarch64/musl: it rejects valid shared
+# libs (libz, musl libc) and falls back to a static libphp4.a, so no libphp4.so
+# is produced and apxs fails. Force pass_all so libtool trusts the linker.
+RUN sed -i 's/^deplibs_check_method=.*/deplibs_check_method="pass_all"/' libtool
 RUN make && make install
 
 WORKDIR /tmp
@@ -44,7 +48,7 @@ WORKDIR /tmp
 
 FROM arm64v8/alpine
 
-RUN apk add --no-cache libstdc++ imap-dev tzdata
+RUN apk add --no-cache libstdc++ tzdata
 
 # Setup Mysql to Run
 ADD my.cnf /usr/local/mysql/my.cnf

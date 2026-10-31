@@ -1,6 +1,6 @@
 FROM ubuntu:14.04 as build
 RUN apt-get update && apt-get install -y --force-yes \
-  build-essential libncurses5-dev zlib1g-dev wget flex
+  build-essential libncurses5-dev zlib1g-dev wget flex m4 patch
 
 WORKDIR /tmp
 
@@ -11,17 +11,35 @@ RUN cd httpd-2.2.34 \
   && make \
   && make install
 
-# Build PHP 4
+# PHP 4's buildconf (needed to add ext/sqlite) only produces a working configure with autoconf 2.13
+ADD autoconf-2.13.tar.gz .
+RUN cd autoconf-2.13 && ./configure --program-suffix=-2.13 && make && make install
+
+# Build SQLite 2.8 CLI (same file format as the PHP extension)
+ADD sqlite-2.8.17.tar.gz .
+RUN mkdir sqlite-build && cd sqlite-build \
+  && ../sqlite-2.8.17/configure --prefix=/usr/local/sqlite2 --disable-tcl --disable-shared \
+  && make && make install
+
+# Build PHP 4 with PECL SQLite 1.0.3 (bundles libsqlite 2.8.14) built statically
+# touch: buildconf only regenerates configure if a config.m4 is newer, and an outdated parse.c would require yacc
 ADD php-4.4.9.tar.bz2 .
 ADD php.ini /usr/local/apache2/php.ini
-RUN cd php-4.4.9 \
-  && ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql --enable-force-cgi-redirect --disable-cgi --with-zlib \
+ADD SQLite-1.0.3.tgz .
+COPY patches/pecl-sqlite-1.0.3-lp64.patch .
+RUN cp -rp SQLite-1.0.3 php-4.4.9/ext/sqlite \
+  && patch -p1 -d php-4.4.9/ext/sqlite < pecl-sqlite-1.0.3-lp64.patch \
+  && touch php-4.4.9/ext/sqlite/config.m4 php-4.4.9/ext/sqlite/libsqlite/src/parse.c php-4.4.9/ext/sqlite/libsqlite/src/parse.h \
+  && cd php-4.4.9 \
+  && PHP_AUTOCONF=autoconf-2.13 PHP_AUTOHEADER=autoheader-2.13 ./buildconf --force && grep -q with-sqlite configure \
+  && ./configure --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql --with-sqlite --enable-force-cgi-redirect --disable-cgi --with-zlib \
   --with-config-file-path=/usr/local/apache2 \
   && make && make install
 
 # Setup PHP to Run on Apache
 RUN echo 'AddType application/x-httpd-php php' >> /usr/local/apache2/conf/httpd.conf \
-  && sed -i 's/DirectoryIndex index.html/DirectoryIndex index.php index.html/' /usr/local/apache2/conf/httpd.conf
+  && sed -i 's/DirectoryIndex index.html/DirectoryIndex index.php index.html/' /usr/local/apache2/conf/httpd.conf \
+  && printf '<FilesMatch "\\.(db|sqlite|sqlite2)$">\n    Order allow,deny\n    Deny from all\n</FilesMatch>\n' >> /usr/local/apache2/conf/httpd.conf
 
 # Build Mysql 4
 ADD mysql-4.1.22.tar.bz2 .
@@ -36,15 +54,18 @@ FROM ubuntu:14.04
 ADD my.cnf /usr/local/mysql/my.cnf
 RUN groupadd -r mysql && useradd -r -g mysql mysql \
   && mkdir /usr/local/mysql/var \
-  && chown -R root /usr/local/mysql && chown -R mysql /usr/local/mysql/var && chgrp -R mysql /usr/local/mysql
+  && chown -R root /usr/local/mysql && chown -R mysql /usr/local/mysql/var && chgrp -R mysql /usr/local/mysql \
+  && mkdir -p /usr/local/sqlite/var
 
 COPY --from=build /usr/local/apache2 /usr/local/apache2
 COPY --from=build /usr/local/mysql /usr/local/mysql
+COPY --from=build /usr/local/sqlite2/bin/sqlite /usr/local/bin/sqlite
 
 ENV PATH="${PATH}:/usr/local/apache2/bin/:/usr/local/mysql/bin/"
-VOLUME /usr/local/mysql/var /usr/local/apache2/htdocs/
+VOLUME /usr/local/mysql/var /usr/local/sqlite/var /usr/local/apache2/htdocs/
 EXPOSE 80 
 CMD apachectl start \
     && chown daemon -R /usr/local/apache2/htdocs/ \
+    && chown daemon -R /usr/local/sqlite/var/ \
     && chown mysql -R /usr/local/mysql/var/ \
     && mysqld_safe --defaults-file=/usr/local/mysql/my.cnf

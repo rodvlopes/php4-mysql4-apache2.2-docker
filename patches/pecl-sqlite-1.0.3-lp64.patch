@@ -1,0 +1,219 @@
+PECL SQLite 1.0.3 on LP64 (x86_64/aarch64): zend_parse_parameters() writes a
+long for "l" and an int for "s" lengths; the original declarations were swapped,
+corrupting the stack (sqlite_open($f, 0666) segfaults). Also returns '' for
+sqlite_escape_string('') instead of uninitialized memory from sqlite_mprintf().
+
+--- a/sqlite.c
++++ b/sqlite.c
+@@ -99,7 +99,7 @@
+ 	char **col_names;
+ 	int alloc_rows;
+ 	char **table;
+-	int mode;
++	long mode;
+ };
+ 
+ struct php_sqlite_db {
+@@ -755,9 +755,9 @@
+    Opens a persistent handle to an SQLite database.  Will create the database if it does not exist */
+ PHP_FUNCTION(sqlite_popen)
+ {
+-	int mode = 0666;
++	long mode = 0666;
+ 	char *filename, *fullpath, *hashkey;
+-	long filename_len, hashkeylen;
++	int filename_len, hashkeylen;
+ 	zval *errmsg = NULL;
+ 	struct php_sqlite_db *db = NULL;
+ 	list_entry *le;
+@@ -785,7 +785,7 @@
+ 		fullpath = estrndup(filename, filename_len);
+ 	}
+ 
+-	hashkeylen = spprintf(&hashkey, 0, "sqlite_pdb_%s:%d", fullpath, mode);
++	hashkeylen = spprintf(&hashkey, 0, "sqlite_pdb_%s:%ld", fullpath, mode);
+ 	
+ 	/* do we have an existing persistent connection ? */
+ 	if (SUCCESS == zend_hash_find(&EG(persistent_list), hashkey, hashkeylen+1, (void*)&le)) {
+@@ -830,9 +830,9 @@
+    Opens an SQLite database.  Will create the database if it does not exist */
+ PHP_FUNCTION(sqlite_open)
+ {
+-	int mode = 0666;
++	long mode = 0666;
+ 	char *filename, *fullpath = NULL;
+-	long filename_len;
++	int filename_len;
+ 	zval *errmsg = NULL;
+ 
+ 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|lz/",
+@@ -1054,8 +1054,8 @@
+ 	zval *zdb;
+ 	struct php_sqlite_db *db;
+ 	char *sql;
+-	long sql_len;
+-	int mode = PHPSQLITE_BOTH;
++	int sql_len;
++	long mode = PHPSQLITE_BOTH;
+ 	char *errtext = NULL;
+ 
+ 	if (FAILURE == zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET,
+@@ -1090,8 +1090,8 @@
+ 	zval *zdb;
+ 	struct php_sqlite_db *db;
+ 	char *sql;
+-	long sql_len;
+-	int mode = PHPSQLITE_BOTH;
++	int sql_len;
++	long mode = PHPSQLITE_BOTH;
+ 	char *errtext = NULL;
+ 
+ 	if (FAILURE == zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET,
+@@ -1125,7 +1125,7 @@
+ 	zval *zdb;
+ 	struct php_sqlite_db *db;
+ 	char *sql;
+-	long sql_len;
++	int sql_len;
+ 	char *errtext = NULL;
+ 
+ 	if (FAILURE == zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET,
+@@ -1276,7 +1276,7 @@
+ PHP_FUNCTION(sqlite_fetch_all)
+ {
+ 	zval *zres, *ent;
+-	int mode = PHPSQLITE_BOTH;
++	long mode = PHPSQLITE_BOTH;
+ 	zend_bool decode_binary = 1;
+ 	struct php_sqlite_result *res;
+ 
+@@ -1311,7 +1311,7 @@
+ PHP_FUNCTION(sqlite_fetch_array)
+ {
+ 	zval *zres;
+-	int mode = PHPSQLITE_BOTH;
++	long mode = PHPSQLITE_BOTH;
+ 	zend_bool decode_binary = 1;
+ 	struct php_sqlite_result *res;
+ 
+@@ -1335,8 +1335,8 @@
+ 	struct php_sqlite_db *db;
+ 	struct php_sqlite_result *rres;
+ 	char *sql;
+-	long sql_len;
+-	int mode = PHPSQLITE_BOTH;
++	int sql_len;
++	long mode = PHPSQLITE_BOTH;
+ 	char *errtext = NULL;
+ 	zend_bool decode_binary = 1;
+ 
+@@ -1440,7 +1440,7 @@
+ 	struct php_sqlite_db *db;
+ 	struct php_sqlite_result *rres;
+ 	char *sql;
+-	long sql_len;
++	int sql_len;
+ 	char *errtext = NULL;
+ 	zend_bool decode_binary = 1;
+ 	zend_bool srow = 1;
+@@ -1523,7 +1523,7 @@
+ PHP_FUNCTION(sqlite_current)
+ {
+ 	zval *zres;
+-	int mode = PHPSQLITE_BOTH;
++	long mode = PHPSQLITE_BOTH;
+ 	zend_bool decode_binary = 1;
+ 	struct php_sqlite_result *res;
+ 
+@@ -1674,7 +1674,7 @@
+ {
+ 	zval *zres;
+ 	struct php_sqlite_result *res;
+-	int field;
++	long field;
+ 
+ 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &zres, &field)) {
+ 		return;
+@@ -1683,7 +1683,7 @@
+ 	ZEND_FETCH_RESOURCE(res, struct php_sqlite_result *, &zres, -1, "sqlite result", le_sqlite_result);
+ 
+ 	if (field < 0 || field >= res->ncolumns) {
+-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "field %d out of range", field);
++		php_error_docref(NULL TSRMLS_CC, E_WARNING, "field %ld out of range", field);
+ 		RETURN_FALSE;
+ 	}
+ 
+@@ -1697,7 +1697,7 @@
+ {
+ 	zval *zres;
+ 	struct php_sqlite_result *res;
+-	int row;
++	long row;
+ 
+ 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &zres, &row)) {
+ 		return;
+@@ -1711,7 +1711,7 @@
+ 	}
+ 	
+ 	if (row < 0 || row >= res->nrows) {
+-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "row %d out of range", row);
++		php_error_docref(NULL TSRMLS_CC, E_WARNING, "row %ld out of range", row);
+ 		RETURN_FALSE;
+ 	}
+ 
+@@ -1779,7 +1779,7 @@
+ PHP_FUNCTION(sqlite_escape_string)
+ {
+ 	char *string = NULL;
+-	long stringlen;
++	int stringlen;
+ 	char *ret;
+ 
+ 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &string, &stringlen)) {
+@@ -1795,7 +1795,9 @@
+ 		enclen = sqlite_encode_binary((const unsigned char*)string, stringlen, ret+1);
+ 		RETVAL_STRINGL(ret, enclen+1, 0);
+ 		
+-	} else  {
++	} else if (!stringlen) {
++		RETURN_EMPTY_STRING();
++	} else {
+ 		ret = sqlite_mprintf("%q", string);
+ 		if (ret) {
+ 			RETVAL_STRING(ret, 1);
+@@ -1910,7 +1912,7 @@
+ PHP_FUNCTION(sqlite_create_aggregate)
+ {
+ 	char *funcname = NULL;
+-	long funcname_len;
++	int funcname_len;
+ 	zval *zstep, *zfinal, *zdb;
+ 	struct php_sqlite_db *db;
+ 	struct php_sqlite_agg_functions *funcs;
+@@ -1951,7 +1953,7 @@
+ PHP_FUNCTION(sqlite_create_function)
+ {
+ 	char *funcname = NULL;
+-	long funcname_len;
++	int funcname_len;
+ 	zval *zcall, *zdb;
+ 	struct php_sqlite_db *db;
+ 	struct php_sqlite_agg_functions *funcs;
+@@ -1981,7 +1983,7 @@
+ PHP_FUNCTION(sqlite_udf_encode_binary)
+ {
+ 	char *data = NULL;
+-	long datalen;
++	int datalen;
+ 
+ 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s!", &data, &datalen)) {
+ 		return;
+@@ -2010,7 +2012,7 @@
+ PHP_FUNCTION(sqlite_udf_decode_binary)
+ {
+ 	char *data = NULL;
+-	long datalen;
++	int datalen;
+ 
+ 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s!", &data, &datalen)) {
+ 		return;

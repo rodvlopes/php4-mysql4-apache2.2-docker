@@ -8,4 +8,5 @@ services:
       - 80:80
     volumes:
       - ./data:/usr/local/mysql/var
+      - ./sqlite-data:/usr/local/sqlite/var
       - ./app:/usr/local/apache2/htdocs

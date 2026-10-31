@@ -1,3 +1,4 @@
 data/*.err
 data/*.pid
+sqlite-data/*-journal
 .*.sw*

@@ -1,6 +1,7 @@
 README.md
 .*
 data
+sqlite-data
 app
 Dockerfile.*
 

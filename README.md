@@ -6,6 +6,8 @@ This Dockerfile builds this old stack trying to keep everything as it used to be
   * Apache 2.2
   * MySql 4.1.22
 
+> **SQLite 2:** a version that also supports SQLite 2 databases (PHP's `sqlite_*` functions) is available on the [`sqlite2`](https://github.com/rodvlopes/php4-mysql4-apache2.2-docker/tree/sqlite2) branch.
+
 ## Base image
 
   * based on alpine: `76MB`
